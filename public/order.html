@@ -370,7 +370,7 @@
       console.log('Email sent successfully:', response.status, response.text);
 
       // Send to backend
-      fetch('http://localhost:3000/api/delivery', {
+      fetch('https://backend-zj27.onrender.com/api/delivery', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
