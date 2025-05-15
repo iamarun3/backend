@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Page</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fdf9f4;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      padding: 2rem;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    h1, h2 {
+      text-align: center;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .order-type-selector {
+      text-align: center;
+      margin: 20px 0;
+    }
+
+    .order-type-selector button {
+      padding: 10px 20px;
+      margin: 10px;
+      background-color: #ff6a00;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .order-type-selector button:hover {
+      background-color: #e55a00;
+    }
+
+    .form-section {
+      display: none;
+      width: 100%;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      margin-bottom: 30px;
+      box-sizing: border-box;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      font-weight: 600;
+      margin-top: 10px;
+      display: block;
+    }
+
+    .input-field {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+
+    .order-summary {
+      font-weight: bold;
+      margin: 10px 0;
+    }
+
+    .btn {
+      background-color: green;
+      color: white;
+      padding: 10px 20px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-top: 10px;
+    }
+
+    .back-btn {
+      background-color: #ccc;
+      color: black;
+      border: none;
+      border-radius: 6px;
+      padding: 10px 15px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    #map {
+      height: 400px;
+      width: 100%;
+      min-height: 300px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <h1>Order Now</h1>
+    <div class="order-type-selector">
+      <button onclick="showSection('dinein')">Dine In</button>
+      <button onclick="showSection('delivery')">Delivery</button>
+    </div>
+
+<div id="dinein" class="form-section">
+  <h2>Book a Table</h2>
+  <form id="dineinForm" onsubmit="submitDineIn(event)">
+    <label>Your Name</label>
+    <input type="text" class="input-field" name="name" required>
+
+    <label>Email</label>
+    <input type="email" class="input-field" name="email" required>
+
+    <label>Number of People</label>
+    <select class="input-field" name="people">
+      <option value="2">2 Person</option>
+      <option value="3">3 Person</option>
+      <option value="4">4 Person</option>
+      <option value="5">5 Person</option>
+    </select>
+
+    <label>Order ID</label>
+    <input type="text" class="input-field" name="orderId" id="orderId" readonly>
+
+    <label>Reservation Date</label>
+    <input type="date" class="input-field" name="date" required>
+
+    <button type="submit" class="btn">Book Table</button>
+  </form>
+
+  <button class="back-btn" onclick="goBack()">&larr; Go Back</button>
+<script>function showDineInOnly() {
+  // Hide other forms
+  document.getElementById('delivery')?.style.display = 'none';
+
+  // Show dine-in
+  document.getElementById('dinein').style.display = 'block';
+
+  // Scroll to the form
+  document.getElementById('dinein').scrollIntoView({ behavior: 'smooth' });
+}
+
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const params = new URLSearchParams(window.location.search);
+    const formType = params.get('form');
+
+    if (formType === 'dinein') {
+      showDineInOnly(); // or your existing function name
+    }
+  });
+</script>
+
+  <!-- Order ID Generator -->
+  <script>
+    function generateOrderId() {
+      const now = Date.now().toString(36);
+      const random = Math.random().toString(36).substr(2, 5).toUpperCase();
+      return 'ORD-' + now + '-' + random;
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const orderIdField = document.getElementById('orderId');
+      if (orderIdField) {
+        orderIdField.value = generateOrderId();
+      }
+    });
+  </script>
+
+  <!-- EmailJS SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  <script type="text/javascript">
+    (function() {
+      emailjs.init({
+        publicKey: "wwMTWQX7EzCRqcJCs", // 🔁 Replace with your actual public key
+      });
+    })();
+  </script>
+
+  <!-- Submit Function -->
+  <script>
+    function submitDineIn(event) {
+  event.preventDefault();
+
+  const form = document.getElementById("dineinForm");
+
+  const templateParams = {
+    name: form.name.value,
+    email: form.email.value,
+    people: form.people.value,
+    orderId: form.orderId.value,
+    date: form.date.value,
+  };
+
+  // Send email via EmailJS
+  emailjs.send('service_vyj333l', 'template_kyj0qmh', templateParams)
+    .then(response => {
+      console.log("Email sent successfully");
+
+      // Send to backend
+      return fetch('/api/dinein', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(templateParams)
+      });
+    })
+    .then(res => {
+      if (!res.ok) throw new Error('Failed to save order in database');
+      return res.text(); // or .json() if server sends JSON
+    })
+    .then(data => {
+      alert("Table booked and saved successfully!");
+      form.reset();
+      form.orderId.value = generateOrderId();
+    })
+}
+</script>
+</div>
+
+
+    <div id="delivery" class="form-section">
+      <h2>Delivery Details</h2>
+      <form id="deliveryForm">
+        <div class="form-group">
+          <label>Name</label>
+          <input type="text" id="customerName" class="input-field" name="name" required>
+
+          <label>Order ID</label>
+<input type="text" id="deliveryOrderId" class="input-field" name="order_id">
+
+          <label>Email</label>
+          <input type="email" class="input-field" name="email" required>
+
+          <label>Phone Number</label>
+          <input type="tel" class="input-field" name="phone" required>
+
+          <label>Menu Item</label>
+          <select class="input-field" id="menuDelivery" onchange="updateTotal('menuDelivery', 'qtyDelivery', 'totalDelivery', true)">
+            <option value="">Select Item</option>
+            <option value="pizza">Pizza - $100</option>
+            <option value="burger">Burger - $85</option>
+            <option value="soft drinks">Soft Drinks - $40</option>
+            <option value="fries">French Fries - $100</option>
+            <option value="bbq">BBQ - $250</option>
+            <option value="chicken">Chicken - $125</option>
+          </select>
+
+          <label>Quantity</label>
+          <input type="number" class="input-field" id="qtyDelivery" value="1" min="1" onchange="updateTotal('menuDelivery', 'qtyDelivery', 'totalDelivery', true)">
+
+          <p class="order-summary">Delivery Charge: $<span id="deliveryCharge">5</span></p>
+          <p class="order-summary">Total: $<span id="totalDelivery">0</span></p>
+        </div>
+
+        <div class="form-group">
+          <label>Delivery Location:</label>
+          <input id="location-input" type="text" class="input-field" placeholder="Enter your location">
+          <button id="search-button" type="button" class="btn">Search</button>
+          <div id="map"></div>
+        </div>
+
+        <button type="submit" class="btn">Order Now</button>
+        <button type="button" class="back-btn" onclick="goBack()">&larr; Go Back</button>
+      </form>
+    </div>
+  </div>
+<script type="text/javascript"
+        src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js">
+</script>
+<script type="text/javascript">
+   (function(){
+      emailjs.init({
+        publicKey: "wwMTWQX7EzCRqcJCs",
+      });
+   })();
+</script>
+  <!-- Leaflet JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    let map, marker;
+    const customIcon = L.icon({
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41]
+    });
+
+    function showSection(type) {
+      document.getElementById('dinein').style.display = (type === 'dinein') ? 'block' : 'none';
+      document.getElementById('delivery').style.display = (type === 'delivery') ? 'block' : 'none';
+      if (type === 'delivery') setTimeout(() => map.invalidateSize(), 300);
+    }
+
+    function goBack() {
+      document.getElementById('dinein').style.display = 'none';
+      document.getElementById('delivery').style.display = 'none';
+    }
+
+    function updateTotal(menuId, qtyId, totalId, includeDelivery = false) {
+      const prices = {
+        "pizza": 100,
+        "burger": 85,
+        "soft drinks": 40,
+        "fries": 100,
+        "bbq": 250,
+        "chicken": 125
+      };
+      const item = document.getElementById(menuId).value;
+      const qty = parseInt(document.getElementById(qtyId).value) || 0;
+      const base = prices[item] || 0;
+      const delivery = includeDelivery ? 5 : 0;
+      document.getElementById(totalId).textContent = (qty * base + delivery).toFixed(2);
+    }
+
+
+    document.getElementById('deliveryForm').addEventListener('submit', function (event) {
+  event.preventDefault();
+
+  const name = document.getElementById('customerName').value.trim();
+  const email = document.querySelector('#deliveryForm input[type="email"]').value.trim();
+  const phone = document.querySelector('#deliveryForm input[type="tel"]').value.trim();
+  const menuItem = document.getElementById('menuDelivery').value;
+  const qty = parseInt(document.getElementById('qtyDelivery').value) || 0;
+  const total = document.getElementById('totalDelivery').textContent.trim();
+  const orderId = document.getElementById('deliveryOrderId')?.value.trim() || 'N/A';
+
+  if (!name || !email || !menuItem || qty <= 0) {
+    alert("Please fill all fields correctly.");
+    return;
+  }
+
+  const formData = {
+    name: name,
+    menuItem: menuItem,
+    quantity: qty,
+    total: total,
+    email: email,
+    phone: phone,
+    order_id: orderId
+  };
+
+  // Send email with EmailJS
+  emailjs.send('service_vyj333l', 'template_szofl9g', formData)
+    .then(response => {
+      console.log('Email sent successfully:', response.status, response.text);
+
+      // Send to backend
+      fetch('http://localhost:3000/api/delivery', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      })
+      .then(res => res.json())
+      .then(data => {
+        console.log('Backend response:', data);
+        alert("Delivery order submitted successfully!");
+        document.getElementById('deliveryForm').reset();
+        document.getElementById('totalDelivery').textContent = "0.00";
+        document.getElementById('deliveryOrderId').value = generateOrderId(); // Regenerate order ID
+      })
+
+    })
+    .catch(error => {
+      console.error('EmailJS error:', error);
+      alert("Failed to send email. Try again.");
+    });
+});
+
+  
+
+
+    document.addEventListener("DOMContentLoaded", () => {
+      map = L.map('map').setView([20, 0], 2);
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+
+      setTimeout(() => map.invalidateSize(), 300);
+
+      map.on('click', async function (e) {
+        const lat = e.latlng.lat;
+        const lng = e.latlng.lng;
+        searchLocation(lat, lng);
+      });
+
+      document.getElementById('search-button').addEventListener('click', () => {
+        const locationInput = document.getElementById('location-input').value;
+        if (locationInput) geocodeAddress(locationInput);
+      });
+    });
+
+    async function searchLocation(lat, lng) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}`);
+        const data = await res.json();
+        const displayName = data.display_name || "Location found";
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([lat, lng], { icon: customIcon }).addTo(map)
+          .bindPopup(`<b>${displayName}</b><br>Lat: ${lat.toFixed(5)}, Lon: ${lng.toFixed(5)}`).openPopup();
+        document.getElementById('location-input').value = displayName;
+        map.setView([lat, lng], Math.max(map.getZoom(), 13));
+      } catch (err) {
+        console.error("Error fetching location", err);
+        alert("Could not get location details.");
+      }
+    }
+
+    async function geocodeAddress(address) {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${address}`);
+        const data = await res.json();
+        if (data.length > 0) {
+          searchLocation(parseFloat(data[0].lat), parseFloat(data[0].lon));
+        } else {
+          alert("No results found.");
+        }
+      } catch (err) {
+        console.error("Error geocoding", err);
+        alert("Could not search for the address.");
+      }
+    }
+  </script>
+</body>
+
+</html>

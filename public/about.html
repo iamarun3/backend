@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>About Us - FOODIE</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      color: #333;
+      scroll-behavior: smooth;
+      background: #fffdf7;
+    }
+
+    header {
+      background-image: url('https://images.unsplash.com/photo-1555992336-03a23c75f2d2');
+      background-size: cover;
+      background-position: center;
+      color: white;
+      text-align: center;
+      padding: 100px 20px;
+      position: relative;
+    }
+
+    header::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    header h1, header p {
+      position: relative;
+      z-index: 2;
+    }
+
+    header h1 {
+      font-size: 50px;
+      margin-bottom: 10px;
+    }
+
+    header p {
+      font-size: 20px;
+    }
+
+    nav {
+      background-color: #fff;
+      display: flex;
+      justify-content: center;
+      padding: 15px 0;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+    }
+
+    nav a {
+      margin: 0 20px;
+      color: #ff5e57;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s ease;
+    }
+
+    nav a:hover {
+      color: #d9473f;
+    }
+
+    .about-section {
+      max-width: 900px;
+      margin: 60px auto;
+      padding: 0 20px;
+      animation: fadeInUp 1s ease;
+    }
+
+    .about-section h1 {
+      font-size: 36px;
+      color: #ff5e57;
+      margin-bottom: 20px;
+    }
+
+    .about-section p {
+      font-size: 18px;
+      line-height: 1.8;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    footer {
+      background-color: #ff5e57;
+      color: white;
+      text-align: center;
+      padding: 20px 10px;
+      margin-top: 60px;
+    }
+
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 600px) {
+      header h1 {
+        font-size: 36px;
+      }
+
+      .about-section h1 {
+        font-size: 28px;
+      }
+
+      .about-section p {
+        font-size: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <h1>FOODIE</h1>
+    <p>Where Taste Meets Passion</p>
+  </header>
+
+  <nav>
+    <a href="index.html">Home</a>
+    <a href="about.html">About Us</a>
+    <a href="index.html#gopal">Contact</a>
+  </nav>
+
+  <section class="about-section">
+    <h1>About Us</h1>
+    <p>
+      Welcome to <strong>FOODIE</strong> – a place where food isn’t just a meal, it's an experience.
+      Founded with a passion for exceptional flavors and memorable dining, FOODIE has been serving
+      delicious bites since 2022. Whether you’re here for a cozy dine-in experience or a quick online order,
+      we bring culinary excellence to every plate.
+    </p>
+
+    <p>
+      Our team of chefs crafts each dish with fresh ingredients and a pinch of love, blending traditional recipes
+      with modern flair. From sizzling BBQs to juicy burgers, crispy fries to refreshing soft drinks, FOODIE is
+      your one-stop destination for all cravings.
+    </p>
+
+    <p>
+      We believe in community, sustainability, and above all – unbeatable taste. Thank you for choosing FOODIE.
+      Let us serve you something special today!
+    </p>
+  </section>
+
+  <footer>
+    &copy; 2025 FOODIE | All rights reserved.
+  </footer>
+
+</body>
+</html>
