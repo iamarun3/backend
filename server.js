@@ -7,7 +7,10 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
-app.use(cors());
+const cors = require('cors');
+app.use(cors({
+  origin: 'https://merry-gecko-a07f9a.netlify.app'
+}));
 app.use(bodyParser.json());
 
 app.use(express.static(path.join(__dirname, 'public')));
